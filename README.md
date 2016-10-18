@@ -1,2 +1,6 @@
 # batterystatus.js
-Lightweight js library that shows battery status
+
+
+Display battery status while surfing the internet
+
+Project for fun, playing with API (it's not very useful at the current stage :> )

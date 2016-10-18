@@ -1,0 +1,30 @@
+{
+  "name": "batterystatus.js",
+  "version": "1.0.0",
+  "description": "Small library for displaying battery status and other info about it",
+  "main": "batterystatus.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Krizzu/batterystatus.js.git"
+  },
+  "keywords": [
+    "battery",
+    "status",
+    "battery",
+    "level"
+  ],
+  "author": "Krzysztof 'Krizzu' Borowy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Krizzu/batterystatus.js/issues"
+  },
+  "homepage": "https://github.com/Krizzu/batterystatus.js#readme",
+  "devDependencies": {
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.16.0"
+  }
+}
