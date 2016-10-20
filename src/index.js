@@ -1,13 +1,9 @@
 /*
-
       Web api:
       https://goo.gl/8I9PRJ
 
-
       Battery Status v1.0.0
-
 */
-
 var BatteryStatusInit = function () {
 
   var bstatus = document.createElement("div");
@@ -43,6 +39,7 @@ var BatteryStatusInit = function () {
 
   //battery status (level) indicator (that div with green background :> )
   var bLevelStatus = document.createElement('span');
+  bLevelStatus.setAttribute('id', 'chargingLevelHeight');
   bLevelStatus.style.width = '100px';
   bLevelStatus.style['max-height'] = '180px';
   bLevelStatus.style.position =  'absolute';
@@ -66,9 +63,10 @@ var BatteryStatusInit = function () {
 
     //hide those functions from user
     updateBatteryLevel: function(battery) {
-      let level = document.getElementById('chargingLevel');
-      level.innerHTML = Number(battery.level * 100).toFixed(0) +'%'
-      bLevelStatus.style.height = 100 - battery.level * 100+"%";
+      let levelP = document.getElementById('chargingLevelPercentage');
+      let levelH = document.getElementById('chargingLevelHeight'); //height of green indicator
+      levelP.innerHTML = Number(battery.level * 100).toFixed(0) +'%'
+      levelH.style.height = 100 - battery.level * 100+"%";
     },
 
     displayChargingIndicators: function displayChargingIndicators(battery) {
@@ -89,11 +87,12 @@ var BatteryStatusInit = function () {
 
 
           //Battery info: level and show proper text/image if charging
+          //enableActivationByKey: if true, it will set the key (default b) that shows/hides battery
           let batteryInfo = "";
           let enableActivationByKey = false;
 
           batteryInfo += '<h3 class="chargingState" style="position: absolute;top:120px;left:10px">Charging</h3>';
-          batteryInfo += '<h3 id="chargingLevel" style="position: absolute;top:140px;left:30px">'+Number(battery.level * 100).toFixed(0) +'%'+'</h3>';
+          batteryInfo += '<h3 id="chargingLevelPercentage" style="position: absolute;top:140px;left:30px">'+Number(battery.level * 100).toFixed(0) +'%'+'</h3>';
 
           bstatus.appendChild(chargingSing);
           bstatus.innerHTML+=batteryInfo;
@@ -111,10 +110,10 @@ var BatteryStatusInit = function () {
           battery.onlevelchange = this.updateBatteryLevel.bind(null, battery)
 
 
-          //When key pressed, show battery
+          //When key pressed, show/hide battery
           if(enableActivationByKey){
-            document.addEventListener('keypress', function(event) {
-              if(event.code == 'KeyB'){
+            document.addEventListener('keydown', function(event) {
+              if(event.altKey && event.code == 'KeyQ'){
                 let mainEle = document.getElementById('batteryStatusMain');
                 let top = Number(mainEle.style.top.replace("px", ""));
                 if(top == '-200') top = '50';
@@ -128,6 +127,4 @@ var BatteryStatusInit = function () {
 
   }
 }
-
-
-window.BatteryStatus = BatteryStatusInit();
+window.BatteryStatus = BatteryStatusInit()
