@@ -113,9 +113,12 @@
 	  var BatteryStatus;
 
 	  return BatteryStatus = {
+	    isInitiated: false,
 
-	    //hide those functions from user
 	    updateBatteryLevel: function updateBatteryLevel(battery) {
+	      if (!this.isInitiated) return 'Please run \'init\' first.';
+	      if (!battery || !(battery instanceof BatteryManager)) return 'Invalid argument';
+
 	      var levelP = document.getElementById('chargingLevelPercentage');
 	      var levelH = document.getElementById('chargingLevelHeight'); //height of green indicator
 	      levelP.innerHTML = Number(battery.level * 100).toFixed(0) + '%';
@@ -123,6 +126,9 @@
 	    },
 
 	    displayChargingIndicators: function displayChargingIndicators(battery) {
+	      if (!this.isInitiated) return 'Please run \'init\' first.';
+	      if (!battery || !(battery instanceof BatteryManager)) return 'Invalid argument';
+
 	      var eleArray = document.getElementsByClassName('chargingState');
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
@@ -153,17 +159,16 @@
 	    init: function init() {
 	      var _this = this;
 
+	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+	      if (this.isInitiated) return 'Already initiated.';
 	      navigator.getBattery().then(function (battery) {
-
-	        // Initial module load
-
-	        //after getting battery status, adjust green background with charge level
-
-
 	        //Battery info: level and show proper text/image if charging
 	        //enableActivationByKey: if true, it will set the key (default b) that shows/hides battery
+
+	        //Check arguments passed to init function. Apply options to function
 	        var batteryInfo = "";
-	        var enableActivationByKey = true;
+	        var enableActivationByKey = false;
 
 	        batteryInfo += '<h3 class="chargingState" style="position: absolute;top:120px;left:10px">Charging</h3>';
 	        batteryInfo += '<h3 id="chargingLevelPercentage" style="position: absolute;top:140px;left:30px">' + Number(battery.level * 100).toFixed(0) + '%' + '</h3>';
@@ -171,18 +176,18 @@
 	        bstatus.appendChild(chargingSing);
 	        bstatus.innerHTML += batteryInfo;
 	        document.getElementsByTagName('body')[0].appendChild(bstatus);
+	        //indicated that it's initiated Already
+	        _this.isInitiated = true;
 
+	        //updating battery status on first init.
 	        _this.updateBatteryLevel(battery);
 	        _this.displayChargingIndicators(battery);
-
 	        //events here:
 
 	        //on charger plug/unplug event change
-	        battery.onchargingchange = _this.displayChargingIndicators.bind(null, battery);
-
+	        battery.onchargingchange = _this.displayChargingIndicators.bind(_this, battery);
 	        //on level change
-	        battery.onlevelchange = _this.updateBatteryLevel.bind(null, battery);
-
+	        battery.onlevelchange = _this.updateBatteryLevel.bind(_this, battery);
 	        //When key pressed, show/hide battery
 	        if (enableActivationByKey) {
 	          document.addEventListener('keydown', function (event) {
@@ -196,7 +201,6 @@
 	        }
 	      });
 	    }
-
 	  };
 	};
 	window.BatteryStatus = BatteryStatusInit();
