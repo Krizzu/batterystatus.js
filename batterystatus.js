@@ -99,6 +99,20 @@
 	  bLevelStatus.style.position = 'absolute';
 	  bLevelStatus.style.background = 'white';
 
+	  //battery handler (the one you click when battery is hidden and enableActivationOnTouch is true)
+	  var bHandler = document.createElement('span');
+	  bHandler.setAttribute('id', 'bStatusHandler');
+	  bHandler.style.width = '30px';
+	  bHandler.style.display = 'none';
+	  bHandler.style.height = '20px';
+	  bHandler.style.border = '1px solid #333';
+	  bHandler.style['border-radius'] = '5px';
+	  bHandler.style['background-color'] = '#333';
+	  bHandler.style.position = 'absolute';
+	  bHandler.style.top = '200px';
+	  bHandler.style.left = '35px';
+	  bHandler.innerHTML = '<span style="padding-left: 5px">+   -</span><span style="color: white;position: relative;display: inline-block;left: 5px;width: 3px; height: 5px; background-color: black; border: 1px solid black; border-radius: 15px;"></span>';
+
 	  //Charging indicator
 	  //As I wanted to keep this one file specify, I had to draw svg myself.
 	  //With little help of http://www.janvas.com/ :)
@@ -109,6 +123,7 @@
 	  //adding battery elements to to main component
 	  bstatus.appendChild(bModelTop);
 	  bstatus.appendChild(bLevelStatus);
+	  bstatus.appendChild(bHandler);
 
 	  var BatteryStatus;
 
@@ -163,20 +178,30 @@
 
 	      if (this.isInitiated) return 'Already initiated.';
 	      navigator.getBattery().then(function (battery) {
-	        //Battery info: level and show proper text/image if charging
-	        //enableActivationByKey: if true, it will set the key (default b) that shows/hides battery
+
+	        //enableActivationByKey: if true, it will set the key ( alt+q ) that shows/hides battery
+	        //enableActivationOnTouch: if true, touching battery will make it hide
+	        var batteryInfo = "";
+	        var enableActivationByKey = void 0,
+	            enableActivationOnTouch = void 0;
 
 	        //Check arguments passed to init function. Apply options to function
-	        var batteryInfo = "";
-	        var enableActivationByKey = false;
+	        if (options) {
+	          enableActivationByKey = options.enableKey;
+	          enableActivationOnTouch = options.enableTouch;
+	        } else {
+	          enableActivationByKey = false;
+	          enableActivationOnTouch = true;
+	        }
 
+	        //Battery info: level and show proper text/image if charging
 	        batteryInfo += '<h3 class="chargingState" style="position: absolute;top:120px;left:10px">Charging</h3>';
 	        batteryInfo += '<h3 id="chargingLevelPercentage" style="position: absolute;top:140px;left:30px">' + Number(battery.level * 100).toFixed(0) + '%' + '</h3>';
 
+	        //Attach everything to DOM, mark it as already initiated.
 	        bstatus.appendChild(chargingSing);
 	        bstatus.innerHTML += batteryInfo;
 	        document.getElementsByTagName('body')[0].appendChild(bstatus);
-	        //indicated that it's initiated Already
 	        _this.isInitiated = true;
 
 	        //updating battery status on first init.
@@ -188,16 +213,43 @@
 	        battery.onchargingchange = _this.displayChargingIndicators.bind(_this, battery);
 	        //on level change
 	        battery.onlevelchange = _this.updateBatteryLevel.bind(_this, battery);
+
 	        //When key pressed, show/hide battery
 	        if (enableActivationByKey) {
 	          document.addEventListener('keydown', function (event) {
 	            if (event.altKey && event.code == 'KeyQ') {
 	              var mainEle = document.getElementById('batteryStatusMain');
+	              var handler = document.getElementById('bStatusHandler');
 	              var top = Number(mainEle.style.top.replace("px", ""));
-	              if (top == '-200') top = '50';else top = '-200';
+	              if (top == '-200') {
+	                top = '50';
+	                if (enableActivationOnTouch) handler.style.display = 'none';
+	              } else {
+	                top = '-200';
+	                if (enableActivationOnTouch) handler.style.display = 'block';
+	              }
 	              mainEle.style.top = top + 'px';
 	            }
 	          });
+	        }
+
+	        //when battery is pressed, show/hide
+	        if (enableActivationOnTouch) {
+	          (function () {
+	            var handler = document.getElementById('bStatusHandler');
+	            var battery = document.getElementById('batteryStatusMain');
+	            battery.addEventListener('click', function () {
+	              var top = Number(battery.style.top.replace("px", ""));
+	              if (top == '-200') {
+	                top = '50';
+	                handler.style.display = 'none';
+	              } else {
+	                top = '-200';
+	                handler.style.display = 'block';
+	              }
+	              battery.style.top = top + 'px';
+	            });
+	          })();
 	        }
 	      });
 	    }
