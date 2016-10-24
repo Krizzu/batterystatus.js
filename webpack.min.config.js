@@ -15,6 +15,10 @@ module.exports = {
   },
   output: {
     path: "./",
-    filename: "batterystatus.js"
-  }
+    filename: "batterystatus.min.js"
+  },
+  plugins: [
+   new webpack.optimize.UglifyJsPlugin({minimize: true})
+ ]
+
 }

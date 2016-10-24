@@ -4,7 +4,9 @@
   "description": "Small library for displaying battery status and other info about it",
   "main": "batterystatus.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "build": "webpack && webpack --config webpack.min.config.js"
   },
   "repository": {
     "type": "git",
