@@ -1,6 +1,6 @@
 {
   "name": "batterystatus.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Small library for displaying battery status and other info about it",
   "main": "batterystatus.js",
   "scripts": {
