@@ -57,7 +57,7 @@
 	      Web api:
 	      https://goo.gl/8I9PRJ
 
-	      Battery Status v1.0.0
+	      Battery Status v1.0.1
 	*/
 	var BatteryStatusInit = function BatteryStatusInit() {
 
@@ -144,22 +144,40 @@
 	  var BatteryStatus;
 
 	  return BatteryStatus = {
+	    //indicates if .init has been already run or not
 	    isInitiated: false,
 
 	    updateBatteryLevel: function updateBatteryLevel(battery) {
+	      //check if .init has been run already
 	      if (!this.isInitiated) return 'Please run \'init\' first.';
 	      if (!battery || !(battery instanceof BatteryManager)) return 'Invalid argument';
 
+	      //we want to show battery only once when below 30%
+	      var mainEle = document.getElementById('batteryStatusMain');
 	      var levelP = document.getElementById('chargingLevelPercentage');
 	      var levelH = document.getElementById('chargingLevelHeight'); //height of green indicator
 	      levelP.innerHTML = Number(battery.level * 100).toFixed(0) + '%';
 	      levelH.style.height = 100 - battery.level * 100 + "%";
+
+	      if (battery.level <= 0.3) {
+	        mainEle.style.background = '#bd0505';
+	        //show battery every 5% below 30%
+	        //check if toggleBattery has been initialized
+	        if (this.toggleBattery && battery.level * 10 % 5 === 0) this.toggleBattery(true);
+	      } else {
+	        bstatus.style.background = '#7ede6e';
+	      }
 	    },
 
 	    displayChargingIndicators: function displayChargingIndicators(battery) {
+	      //check if is initialized first --- argument must be instance of BatteryManager
 	      if (!this.isInitiated) return 'Please run \'init\' first.';
 	      if (!battery || !(battery instanceof BatteryManager)) return 'Invalid argument';
 
+	      //run toggle only after .init()
+	      if (this.toggleBattery) this.toggleBattery(true);
+
+	      //toggle display of charging state (Text and svg)
 	      var eleArray = document.getElementsByClassName('chargingState');
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
@@ -211,8 +229,8 @@
 	        }
 
 	        //Battery info: level and show proper text/image if charging
-	        batteryInfo += '<h3 class="chargingState" style="height: 20px;margin:0;font-size: 16px;position: absolute;bottom:20px;left:13px">Charging</h3>';
-	        batteryInfo += '<h3 id="chargingLevelPercentage" style="height: 20px;margin:0;font-size:18px;position: absolute;bottom:0px;left: 22px;">' + Number(battery.level * 100).toFixed(0) + '%' + '</h3>';
+	        batteryInfo += '<h3 class="chargingState" style="cursor: default;height: 20px;margin:0;font-size: 16px;position: absolute;bottom:20px;left:13px">Charging</h3>';
+	        batteryInfo += '<h3 id="chargingLevelPercentage" style="cursor: default;height: 20px;margin:0;font-size:18px;position: absolute;bottom:0px;left: 22px;">' + Number(battery.level * 100).toFixed(0) + '%' + '</h3>';
 
 	        //Attach everything to DOM, mark it as already initiated.
 	        bstatus.appendChild(chargingSing);
@@ -223,8 +241,28 @@
 	        //updating battery status on first init.
 	        _this.updateBatteryLevel(battery);
 	        _this.displayChargingIndicators(battery);
-	        //events here:
 
+	        //helper functions
+	        //toggles visibility of battery
+	        _this.toggleBattery = function () {
+	          var show = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+	          if (!this.isInitiated) return 'Please run \'init\' first.';
+	          var mainBatteryElement = document.getElementById('batteryStatusMain');
+	          var handler = document.getElementById('bStatusHandler');
+	          var top = Number(mainBatteryElement.style.top.replace("px", ""));
+
+	          if (top == '-200' || show === true) {
+	            top = '50';
+	            if (enableActivationOnTouch) handler.style.display = 'none';
+	          } else {
+	            top = '-200';
+	            if (enableActivationOnTouch) handler.style.display = 'block';
+	          }
+	          mainBatteryElement.style.top = top + 'px';
+	        };
+
+	        //events here:
 	        //on charger plug/unplug event change
 	        battery.onchargingchange = _this.displayChargingIndicators.bind(_this, battery);
 	        //on level change
@@ -234,43 +272,24 @@
 	        if (enableActivationByKey) {
 	          document.addEventListener('keydown', function (event) {
 	            if (event.altKey && event.code == 'KeyQ') {
-	              var mainEle = document.getElementById('batteryStatusMain');
-	              var handler = document.getElementById('bStatusHandler');
-	              var top = Number(mainEle.style.top.replace("px", ""));
-	              if (top == '-200') {
-	                top = '50';
-	                if (enableActivationOnTouch) handler.style.display = 'none';
-	              } else {
-	                top = '-200';
-	                if (enableActivationOnTouch) handler.style.display = 'block';
-	              }
-	              mainEle.style.top = top + 'px';
+	              _this.toggleBattery();
 	            }
 	          });
 	        }
 
-	        //when battery is pressed, show/hide
+	        //when battery is pressed, show/hide battery
 	        if (enableActivationOnTouch) {
-	          (function () {
-	            var handler = document.getElementById('bStatusHandler');
-	            var battery = document.getElementById('batteryStatusMain');
-	            battery.addEventListener('click', function () {
-	              var top = Number(battery.style.top.replace("px", ""));
-	              if (top == '-200') {
-	                top = '50';
-	                handler.style.display = 'none';
-	              } else {
-	                top = '-200';
-	                handler.style.display = 'block';
-	              }
-	              battery.style.top = top + 'px';
-	            });
-	          })();
+	          var _battery = document.getElementById('batteryStatusMain');
+	          _battery.addEventListener('click', function () {
+	            _this.toggleBattery();
+	          });
 	        }
 	      });
 	    }
 	  };
 	};
+
+	//Attaching Battery to window
 	window.BatteryStatus = BatteryStatusInit();
 
 /***/ }
