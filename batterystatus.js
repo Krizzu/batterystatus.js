@@ -106,6 +106,8 @@
 	  bLevelStatus.style.width = '100%';
 	  bLevelStatus.style['max-height'] = '100%';
 	  bLevelStatus.style.position = 'absolute';
+	  bLevelStatus.style.left = '0px';
+	  bLevelStatus.style.top = '0px';
 	  bLevelStatus.style.background = 'white';
 	  bLevelStatus.style['border-top-right-radius'] = '5px';
 	  bLevelStatus.style['border-top-left-radius'] = '5px';
