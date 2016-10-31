@@ -5,6 +5,11 @@ More here:
 [https://developer.mozilla.org/en/docs/Web/API/Battery_Status_API](More info here)
 
 ___
+### Live Preview
+
+#### [Live Preview at Heroku](https://batterystatus.herokuapp.com/)
+
+___
 
 ### Including `batterystatus.js` in a project
 
